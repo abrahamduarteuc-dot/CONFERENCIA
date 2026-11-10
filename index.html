@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f3b4f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hallazgos">
+<title>Hallazgos Gastro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2f6; --card:#fff; --ink:#0f1f2e; --muted:#5b6b7b; --line:#e3e9ef;
+  --teal:#0e6b8a; --teal-d:#0f3b4f; --gold:#dba11b; --green:#2f9a61; --red:#d9534c; --gray:#9aa7b4;
+  --r:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:'Figtree',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:120px;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+
+.banner{background:#7a4b00;color:#fff;font-size:14px;padding:10px 16px;text-align:center}
+.top{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.icon{width:46px;height:46px;border-radius:14px;border:0;background:#eef2f6;display:grid;place-items:center;flex:none}
+.top h1{font-size:18px;font-weight:700;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sync{font-size:13px;color:var(--muted);border:0;background:none;padding:8px}
+main{max-width:1100px;margin:0 auto;padding:16px}
+
+/* Portada */
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#0f3b4f 0%,#0e6b8a 100%);color:#fff;border-radius:28px;padding:22px 20px 24px}
+.hero::before,.hero::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.07)}
+.hero::before{width:230px;height:230px;right:-70px;top:-90px}
+.hero::after{width:150px;height:150px;right:80px;bottom:-80px}
+.hero small{display:block;font-size:12px;letter-spacing:1.8px;font-weight:700;opacity:.75;text-transform:uppercase}
+.hero h2{font-size:28px;line-height:1.12;margin:6px 0 4px;font-weight:800;letter-spacing:-.4px;position:relative;overflow-wrap:anywhere}
+.hero p{margin:0 0 16px;opacity:.9;font-size:16px;position:relative}
+.btn-pres{position:relative;display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--teal-d);border:0;border-radius:16px;padding:14px 20px;font-weight:700;font-size:16px}
+.btn-pres:disabled{opacity:.55}
+
+/* Cuadros-resumen (filtros) */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.stat{background:var(--card);border:2px solid transparent;border-radius:18px;padding:12px 10px;text-align:left;border-top:4px solid var(--c,var(--teal));box-shadow:0 1px 3px rgba(15,31,46,.06)}
+.stat b{display:block;font-size:26px;font-weight:800;line-height:1}
+.stat span{font-size:12.5px;color:var(--muted);font-weight:600}
+.stat.on{border-color:var(--c,var(--teal));background:#f7fbfd}
+
+.tools{display:grid;gap:10px;margin-bottom:6px}
+.search{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:0 14px;height:52px}
+.search input{border:0;outline:0;flex:1;font-size:16px;background:none;min-width:0}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 14px;font-size:14px;font-weight:600;color:var(--muted)}
+.chip.on{background:var(--teal-d);border-color:var(--teal-d);color:#fff}
+.count{color:var(--muted);font-size:14px;margin:10px 2px}
+
+/* Tarjetas */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 3px rgba(15,31,46,.07);cursor:pointer;display:flex;flex-direction:column}
+.thumb{position:relative;aspect-ratio:16/10;background:#0b1f2a}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pill{position:absolute;left:10px;top:10px;background:rgba(15,31,46,.82);color:#fff;font-size:12.5px;font-weight:700;border-radius:999px;padding:6px 11px;display:flex;align-items:center;gap:7px}
+.pill.err{background:var(--red)}
+.spin{width:12px;height:12px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.star{position:absolute;right:8px;top:8px;width:42px;height:42px;border-radius:50%;border:0;background:rgba(15,31,46,.6);color:#fff;font-size:20px;line-height:1}
+.star.on{background:var(--gold)}
+.cb{padding:14px 16px 16px;display:flex;flex-direction:column;gap:7px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag{font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;background:#e3f1f6;color:var(--teal-d)}
+.tag.t2{background:#f1edf9;color:#4b3a8c}
+.card h3{margin:0;font-size:17.5px;line-height:1.25;font-weight:700;overflow-wrap:anywhere}
+.card p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.foot{font-size:12.5px;color:var(--gray);font-weight:600}
+.empty{text-align:center;color:var(--muted);padding:44px 20px;background:#fff;border-radius:var(--r);border:2px dashed var(--line)}
+.empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:6px}
+
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom));background:var(--teal-d);color:#fff;border:0;border-radius:20px;padding:17px 26px;font-weight:700;font-size:17px;box-shadow:0 10px 26px rgba(15,59,79,.35);z-index:6;white-space:nowrap}
+
+/* Paneles inferiores */
+.sheet{position:fixed;inset:0;background:rgba(10,25,35,.55);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet.on{display:flex}
+.panel{background:#fff;width:100%;max-width:660px;max-height:93dvh;overflow:auto;border-radius:26px 26px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+@media(min-width:720px){.sheet{align-items:center}.panel{border-radius:26px}}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ph h3{margin:0;font-size:20px}
+.x{width:42px;height:42px;border-radius:50%;border:0;background:#eef2f6;font-size:17px}
+.lbl{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.6px}
+.inp,textarea.inp,select.inp{width:100%;border:1px solid var(--line);border-radius:14px;padding:13px 14px;font-size:16px;background:#fff;outline:0}
+.inp:focus{border-color:var(--teal)}
+textarea.inp{min-height:96px;resize:vertical;line-height:1.45}
+.help{font-size:13.5px;color:var(--muted);margin:8px 2px 0;line-height:1.45}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.big{border:2px solid var(--line);background:#f7fafc;border-radius:18px;padding:22px 10px;font-weight:700;font-size:16px;display:grid;gap:8px;justify-items:center;text-align:center}
+.big svg{color:var(--teal)}
+.btn{border:0;border-radius:14px;padding:14px 16px;font-weight:700;font-size:15.5px;background:#eef2f6}
+.btn.pri{background:var(--teal-d);color:#fff}
+.btn.dan{background:#fdeceb;color:#b3322c}
+.btn:disabled{opacity:.5}
+.acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.acts .wide{grid-column:1/-1}
+
+/* Ficha */
+.dimg{width:100%;border-radius:18px;background:#0b1f2a;display:block;max-height:46vh;object-fit:contain;cursor:zoom-in}
+.d h2{font-size:23px;line-height:1.2;margin:10px 0 4px;overflow-wrap:anywhere}
+.d .meta{color:var(--muted);font-size:14px;margin:0}
+.d h4{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:18px 0 6px;display:flex;align-items:center;gap:8px}
+.ia{font-size:11px;background:#e3f1f6;color:var(--teal-d);border-radius:6px;padding:2px 7px;letter-spacing:.3px}
+.d p{margin:0;line-height:1.55;font-size:16px;overflow-wrap:anywhere}
+.d ul{margin:0;padding-left:20px;line-height:1.5;font-size:16px}
+.d li{margin:5px 0;overflow-wrap:anywhere}
+.ref{font-size:13.5px!important;color:var(--muted)}
+.warn{background:#fff6e0;border-left:4px solid var(--gold);border-radius:10px;padding:10px 12px;font-size:14.5px;margin-top:14px;line-height:1.45}
+.errb{background:#fdeceb;border-left:4px solid var(--red);border-radius:10px;padding:10px 12px;font-size:14.5px;margin-top:12px;line-height:1.45;overflow-wrap:anywhere}
+.wait{background:#e3f1f6;border-radius:10px;padding:12px;font-size:15px;margin-top:12px;display:flex;gap:10px;align-items:center}
+.wait .spin{border-color:rgba(14,107,138,.25);border-top-color:var(--teal);width:16px;height:16px;flex:none}
+
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#0f1f2e;color:#fff;padding:12px 18px;border-radius:14px;font-size:15px;z-index:60;max-width:88vw;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+
+/* Zoom de foto */
+.zoom{position:fixed;inset:0;background:#000;z-index:50;display:none;overflow:auto;-webkit-overflow-scrolling:touch}
+.zoom.on{display:block}
+.zoom img{display:block;width:100%;min-height:100%;object-fit:contain}
+.zoom.x2 img{width:220%;max-width:none}
+.zoom button{position:fixed;right:14px;top:calc(14px + env(safe-area-inset-top));width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.9);font-size:18px}
+
+/* Presentación */
+.pres{position:fixed;inset:0;background:#f4f7fa;z-index:40;display:none;flex-direction:column}
+.pres.on{display:flex}
+.pbar{display:flex;align-items:center;gap:8px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:#fff;border-bottom:1px solid var(--line)}
+.pbar b{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pbar .num{font-size:14px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums}
+.pbtn{height:42px;min-width:42px;padding:0 12px;border-radius:12px;border:0;background:#eef2f6;font-weight:700;font-size:14px}
+.pbtn.on{background:var(--gold);color:#fff}
+.deck{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.deck::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;overflow-y:auto;padding:14px}
+.sin{max-width:1280px;margin:0 auto;min-height:100%;display:grid;gap:16px;grid-template-columns:1fr;align-content:start}
+.sfoto{background:#0b1f2a;border-radius:20px;overflow:hidden;display:grid;place-items:center}
+.sfoto img{width:100%;max-height:44vh;object-fit:contain;display:block;cursor:zoom-in}
+.stxt{background:#fff;border-radius:20px;padding:20px;border-top:5px solid var(--teal)}
+.stxt .eye{font-size:12.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--teal)}
+.stxt h2{font-size:24px;line-height:1.18;margin:6px 0 10px;overflow-wrap:anywhere}
+.stxt p{margin:0 0 12px;line-height:1.55;font-size:16.5px;overflow-wrap:anywhere}
+.stxt ul{margin:0;padding-left:20px;line-height:1.5;font-size:16px}
+.stxt li{margin:6px 0;overflow-wrap:anywhere}
+.snota{background:#fff6e0;border-left:4px solid var(--gold);border-radius:10px;padding:10px 12px;margin-top:14px;font-size:15.5px;line-height:1.45;overflow-wrap:anywhere}
+.snota b{display:block;font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:#8a6200;margin-bottom:2px}
+.spie{font-size:12.5px;color:var(--gray);margin-top:14px}
+@media(min-width:900px) and (orientation:landscape){
+  .slide{padding:22px}
+  .sin{grid-template-columns:1.35fr 1fr;align-items:stretch;height:100%}
+  .sfoto img{max-height:calc(100dvh - 120px);height:100%}
+  .stxt{overflow:auto;padding:26px}
+  .stxt h2{font-size:30px}
+}
+.cover{display:grid;place-items:center;min-height:100%;text-align:center}
+.cover>div{background:linear-gradient(135deg,#0f3b4f,#0e6b8a);color:#fff;border-radius:28px;padding:44px 26px;width:100%;max-width:820px}
+.cover small{letter-spacing:2px;font-weight:700;opacity:.75;font-size:13px;text-transform:uppercase}
+.cover h2{font-size:clamp(30px,6vw,52px);line-height:1.08;margin:10px 0;letter-spacing:-.5px;overflow-wrap:anywhere}
+.cover p{font-size:18px;opacity:.9;margin:0 0 22px}
+.cover .n{display:inline-block;background:rgba(255,255,255,.14);border-radius:999px;padding:8px 16px;font-weight:700}
+.cover .sw{display:block;margin-top:22px;font-size:14px;opacity:.75}
+.pnav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:0;background:rgba(15,31,46,.75);color:#fff;font-size:20px;display:none}
+.pnav.l{left:10px}.pnav.r{right:10px}
+@media(hover:hover) and (min-width:900px){.pnav{display:block}}
+@media(max-width:380px){.stat b{font-size:22px}.stat span{font-size:11.5px}}
+</style>
+</head>
+<body>
+
+<div class="banner" id="demoBanner" hidden>Modo demostración: los datos no se guardan. Falta pegar la URL de Apps Script en CONFIG.API_URL.</div>
+<header class="top">
+  <button class="icon" id="btnMenu" aria-label="Ajustes">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <h1>Hallazgos Gastro</h1>
+  <button class="sync" id="btnSync">↻ Actualizar</button>
+</header>
+
+<main>
+  <section class="hero">
+    <small>Biblioteca del congreso</small>
+    <h2 id="hTitulo"></h2>
+    <p id="hSub"></p>
+    <button class="btn-pres" id="btnPres">▶ Presentar láminas</button>
+  </section>
+
+  <section class="stats" id="stats"></section>
+
+  <section class="tools">
+    <div class="search">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5b6b7b" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" placeholder="Buscar por título, tema o nota…" autocomplete="off">
+    </div>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <p class="count" id="count"></p>
+  <section class="grid" id="grid"></section>
+</main>
+
+<button class="fab" id="btnAdd">＋ Subir fotos</button>
+
+<!-- Subir -->
+<div class="sheet" id="sheetAdd"><div class="panel">
+  <div class="ph"><h3>Subir fotos</h3><button class="x" data-close>✕</button></div>
+  <label class="lbl" style="margin-top:0" for="inCharla">Charla o expositor (opcional)</label>
+  <input class="inp" id="inCharla" type="text" placeholder="Ej: Reflujo laringofaríngeo" autocomplete="off">
+  <p class="help">Queda escrito para las siguientes fotos. Cámbialo cuando empiece otra charla.</p>
+  <div class="two">
+    <label class="big"><input type="file" id="fCam" accept="image/*" capture="environment" hidden>
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Tomar foto</label>
+    <label class="big"><input type="file" id="fGal" accept="image/*" multiple hidden>
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.4"/></svg>Elegir de la galería</label>
+  </div>
+  <p class="help">Cada foto se guarda al instante y la IA escribe su resumen en unos segundos. Puedes elegir varias a la vez. Evita fotos donde se vean datos de pacientes.</p>
+</div></div>
+
+<!-- Ficha -->
+<div class="sheet" id="sheetDet"><div class="panel d" id="panelDet"></div></div>
+
+<!-- Clave -->
+<div class="sheet" id="sheetPin"><div class="panel">
+  <div class="ph"><h3>Clave de acceso</h3><span></span></div>
+  <p class="help" style="margin-top:0">Escribe la clave que te entregaron. Se pide una sola vez en este teléfono.</p>
+  <label class="lbl" for="inPin">Clave</label>
+  <input class="inp" id="inPin" type="password" inputmode="numeric" autocomplete="off">
+  <p class="errb" id="pinErr" hidden></p>
+  <div class="acts"><button class="btn pri wide" id="btnPin">Entrar</button></div>
+</div></div>
+
+<!-- Ajustes -->
+<div class="sheet" id="sheetCfg"><div class="panel">
+  <div class="ph"><h3>Ajustes</h3><button class="x" data-close>✕</button></div>
+  <label class="lbl" style="margin-top:0" for="cfgTit">Nombre del congreso</label>
+  <input class="inp" id="cfgTit" type="text" maxlength="120">
+  <label class="lbl" for="cfgSub">Subtítulo</label>
+  <input class="inp" id="cfgSub" type="text" maxlength="140" placeholder="Ej: Santiago · noviembre 2026">
+  <div class="acts">
+    <button class="btn pri wide" id="cfgSave">Guardar</button>
+    <button class="btn wide" id="cfgLink">Copiar enlace de la presentación (solo lectura)</button>
+    <button class="btn wide" id="cfgPin">Cambiar clave en este teléfono</button>
+  </div>
+  <p class="help">Los resúmenes los escribe una IA a partir de la foto. Antes de usarlos en la práctica, compáralos con la lámina original.</p>
+</div></div>
+
+<!-- Presentación -->
+<div class="pres" id="pres">
+  <div class="pbar">
+    <button class="pbtn" id="pClose" aria-label="Cerrar">✕</button>
+    <b id="pTit"></b>
+    <button class="pbtn" id="pDest">★ Solo destacados</button>
+    <span class="num" id="pNum"></span>
+  </div>
+  <div style="position:relative;flex:1;display:flex;min-height:0">
+    <div class="deck" id="deck"></div>
+    <button class="pnav l" id="pPrev" aria-label="Anterior">‹</button>
+    <button class="pnav r" id="pNext" aria-label="Siguiente">›</button>
+  </div>
+</div>
+
+<div class="zoom" id="zoom"><img id="zoomImg" alt=""><button id="zoomX" aria-label="Cerrar">✕</button></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   CONFIGURACIÓN: pega aquí la URL de tu Apps Script (termina en /exec)
+   ===================================================================== */
+const CONFIG = { API_URL: '' };
+
+const TEMAS = ['Esófago','Estómago','Intestino delgado','Colon y recto','Hígado','Páncreas y vía biliar','Motilidad y neurogastro','Endoscopía','EII','Nutrición','Otro'];
+const TIPOS = ['Fisiopatología','Algoritmo','Caso clínico','Examen o estudio','Diagnóstico diferencial','Tratamiento','Resultados de estudio','Otro'];
+
+const VISOR = new URLSearchParams(location.search).has('ver');   // enlace de solo lectura
+const DEMO = !CONFIG.API_URL;
+
+const ls = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+let PIN = ls.get('hg_pin') || '';
+let meta = { titulo: 'Congreso de Gastroenterología', subtitulo: 'Láminas y aprendizajes' };
+let items = [];
+const previews = {};            // id -> foto local, para verla al instante
+const cola = [];                // fotos esperando subirse
+let subiendo = false;
+const filtro = { estado: 'todos', tema: '', q: '' };
+let abierto = null, modoEdit = false, confirmaBorrar = false;
+let soloDest = false;
+
+/* ---------------- Conexión con Apps Script ---------------- */
+async function api(action, data){
+  if (DEMO) return demoApi(action, data || {});
+  const r = await fetch(CONFIG.API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },   // evita el bloqueo previo del navegador (CORS)
+    body: JSON.stringify(Object.assign({ action, pin: PIN }, data || {}))
+  });
+  const j = await r.json();
+  if (!j.ok){
+    if (j.code === 'pin'){ PIN = ''; ls.del('hg_pin'); pedirPin(j.error); }
+    throw new Error(j.error || 'Error del servidor');
+  }
+  return j;
+}
+async function apiList(){
+  if (DEMO) return demoApi('list', {});
+  const r = await fetch(CONFIG.API_URL + '?action=list&t=' + Date.now());
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Error del servidor');
+  return j;
+}
+
+/* ---------------- Modo demostración (sin hoja conectada) ---------------- */
+const demoDB = [];
+function demoImg(t, c){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><rect width="800" height="500" fill="${c}"/><rect x="40" y="40" width="720" height="420" rx="18" fill="#fff" opacity=".93"/><text x="400" y="255" font-family="sans-serif" font-size="34" font-weight="700" text-anchor="middle" fill="#0f3b4f">${t}</text><text x="400" y="300" font-family="sans-serif" font-size="20" text-anchor="middle" fill="#5b6b7b">foto de ejemplo</text></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+function demoSeed(){
+  const base = Date.now() - 3600e3;
+  const mk = (i, o) => Object.assign({ id: 'D' + i, fecha: new Date(base + i * 240e3).toISOString(), charla: 'Reflujo laringofaríngeo', referencia: '', legibilidad: '', nota: '', destacado: '', estado: 'listo', error: '', fileId: '' }, o);
+  demoDB.push(
+    mk(1, { titulo: 'Reflujo laringofaríngeo: tres mecanismos', tema: 'Esófago', tipo: 'Fisiopatología', imagen: demoImg('Reflujo laringofaríngeo', '#0e6b8a'), destacado: 'si',
+      resumen: 'La lámina resume el reflujo laringofaríngeo en tres etapas: una dismotilidad esofágica o esfinteriana que predispone al reflujo, la llegada de ácido, pepsina y sales biliares a la mucosa laríngea, y un modelo de respuesta conductual laríngea que mantiene los síntomas.',
+      puntos: 'Relajaciones transitorias del EEI aumentadas, hipotonía del EES y hipoperistalsis\nÁcido, pepsina y sales biliares dañan la mucosa laríngea y faríngea\nHipersensibilidad, hiperrespuesta e hipervigilancia laríngea perpetúan la molestia' }),
+    mk(2, { titulo: 'Reflujo laringofaríngeo ¿cómo hago el diagnóstico?', tema: 'Esófago', tipo: 'Algoritmo', imagen: demoImg('Algoritmo diagnóstico', '#4b3a8c'),
+      resumen: 'Algoritmo para pacientes con síntomas laringofaríngeos (SLF). Separa a quienes tienen además síntomas esofágicos de quienes tienen SLF aislados y define cuándo pedir pruebas esofágicas objetivas.',
+      puntos: 'La laringoscopia no es diagnóstica de ERL\nCon síntomas esofágicos: ensayo de tratamiento empírico\nSLF aislados: pruebas objetivas antes de cualquier terapia anti-reflujo',
+      legibilidad: 'La cita al pie de la lámina no se alcanza a leer completa.' }),
+    mk(3, { titulo: 'Imitadores del globus | El diferencial ORL', tema: 'Esófago', tipo: 'Diagnóstico diferencial', charla: 'Globus', imagen: demoImg('Imitadores del globus', '#2f9a61'),
+      resumen: 'Lista de nueve cuadros otorrinolaringológicos que pueden confundirse con globus, cada uno con su pista clínica. La neoplasia de hipofaringe o base de lengua aparece destacada.',
+      puntos: 'Amígdala lingual hipertrófica\nTensión muscular laríngea\nDivertículo de Zenker: regurgitación, halitosis, disfagia\nNeoplasia: lateralizado, progresivo, otalgia refleja, baja de peso' })
+  );
+}
+async function demoApi(action, d){
+  await wait(action === 'analizar' ? 2200 : 500);
+  const find = id => demoDB.find(x => x.id === id);
+  if (action === 'list') return { ok: true, meta, items: demoDB.map(x => Object.assign({}, x)) };
+  if (action === 'ping') return { ok: true };
+  if (action === 'meta'){ meta = { titulo: d.titulo, subtitulo: d.subtitulo }; return { ok: true, meta }; }
+  if (action === 'crear'){
+    const it = { id: 'D' + Date.now() + Math.floor(Math.random() * 99), fecha: new Date().toISOString(), charla: d.charla || '', titulo: '', tema: '', tipo: '', resumen: '', puntos: '', referencia: '', legibilidad: '', nota: '', destacado: '', estado: 'pendiente', error: '', fileId: '', imagen: d.imagen };
+    demoDB.push(it); return { ok: true, item: Object.assign({}, it) };
+  }
+  const it = find(d.id);
+  if (action === 'eliminar'){ const i = demoDB.indexOf(it); if (i >= 0) demoDB.splice(i, 1); return { ok: true }; }
+  if (!it) throw new Error('Ese hallazgo ya no existe.');
+  if (action === 'analizar') Object.assign(it, { titulo: 'Lámina de ejemplo', tema: 'Otro', tipo: 'Otro', estado: 'listo', error: '',
+    resumen: 'Estás en modo demostración. Cuando conectes la hoja de Google, aquí aparecerá el resumen que Sonnet escribe a partir de la foto.',
+    puntos: 'Título, tema y tipo de lámina\nResumen de 2 a 4 oraciones\nPuntos clave con las cifras que muestre la lámina' });
+  if (action === 'editar'){ const c = d.campos || {}; Object.keys(c).forEach(k => it[k] = k === 'destacado' ? (c[k] ? 'si' : '') : c[k]); }
+  return { ok: true, item: Object.assign({}, it) };
+}
+
+/* ---------------- Utilidades ---------------- */
+let toastT;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 3200); }
+function abrir(id){ $(id).classList.add('on'); }
+function cerrar(id){ $(id).classList.remove('on'); }
+const find = id => items.find(x => x.id === id);
+const img = it => previews[it.id] || (/^(https:\/\/|data:image\/)/.test(it.imagen || '') ? it.imagen : '');
+const fechaTxt = f => { const d = new Date(f); return isNaN(d) ? '' : d.toLocaleString('es-CL', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+const enProceso = it => it.estado === 'subiendo' || it.estado === 'pendiente';
+const conError = it => it.estado === 'error' || it.estado === 'fallo';
+const puntosDe = it => String(it.puntos || '').split('\n').map(s => s.trim()).filter(Boolean);
+function guardarCache(){ ls.set('hg_cache', JSON.stringify({ meta, items: items.filter(x => x.estado !== 'subiendo' && x.estado !== 'fallo') })); }
+
+// Si Drive todavía no genera la miniatura, reintenta un par de veces.
+document.addEventListener('error', e => {
+  const el = e.target;
+  if (el.tagName !== 'IMG' || !/^https:/.test(el.src)) return;
+  const n = +(el.dataset.try || 0);
+  if (n >= 3) return;
+  el.dataset.try = n + 1;
+  setTimeout(() => { const u = new URL(el.src); u.searchParams.set('r', Date.now()); el.src = u.href; }, 2500 * (n + 1));
+}, true);
+
+/* ---------------- Pantalla principal ---------------- */
+function lista(){
+  const q = filtro.q.trim().toLowerCase();
+  return items.filter(it => {
+    if (filtro.estado === 'dest' && it.destacado !== 'si') return false;
+    if (filtro.estado === 'proc' && !enProceso(it)) return false;
+    if (filtro.estado === 'err' && !conError(it)) return false;
+    if (filtro.tema && it.tema !== filtro.tema) return false;
+    if (q && ![it.titulo, it.tema, it.tipo, it.resumen, it.puntos, it.nota, it.charla].join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
+}
+
+function render(){
+  $('#hTitulo').textContent = meta.titulo || 'Congreso';
+  $('#hSub').textContent = meta.subtitulo || '';
+  const listos = items.filter(x => x.estado === 'listo').length;
+  $('#btnPres').disabled = !listos;
+
+  const st = [
+    ['todos', items.length, 'Hallazgos', 'var(--teal)'],
+    ['dest', items.filter(x => x.destacado === 'si').length, 'Destacados', 'var(--gold)'],
+    ['proc', items.filter(enProceso).length, 'En proceso', 'var(--gray)'],
+    ['err', items.filter(conError).length, 'Con error', 'var(--red)']
+  ];
+  $('#stats').innerHTML = st.map(s => `<button class="stat${filtro.estado === s[0] ? ' on' : ''}" data-e="${s[0]}" style="--c:${s[3]}"><b>${s[1]}</b><span>${s[2]}</span></button>`).join('');
+
+  const temas = TEMAS.filter(t => items.some(x => x.tema === t));
+  $('#chips').innerHTML = temas.length < 2 ? '' :
+    `<button class="chip${!filtro.tema ? ' on' : ''}" data-t="">Todos los temas</button>` +
+    temas.map(t => `<button class="chip${filtro.tema === t ? ' on' : ''}" data-t="${esc(t)}">${esc(t)}</button>`).join('');
+
+  const l = lista();
+  $('#count').textContent = items.length ? (l.length === items.length ? `${l.length} hallazgo${l.length === 1 ? '' : 's'}` : `${l.length} de ${items.length} hallazgos`) : '';
+  $('#grid').innerHTML = l.length ? l.map(tarjeta).join('') :
+    `<div class="empty" style="grid-column:1/-1"><b>${items.length ? 'Nada con ese filtro' : 'Aún no hay hallazgos'}</b>${items.length ? 'Prueba con otro filtro o búsqueda.' : (VISOR ? 'Todavía no se han subido láminas.' : 'Toca «Subir fotos» para guardar la primera lámina.')}</div>`;
+}
+
+function estadoPill(it){
+  if (it.estado === 'subiendo') return '<span class="pill"><i class="spin"></i>Guardando foto…</span>';
+  if (it.estado === 'pendiente') return it._an ? '<span class="pill"><i class="spin"></i>La IA está leyendo…</span>' : '<span class="pill">Falta resumen</span>';
+  if (it.estado === 'fallo') return '<span class="pill err">No se guardó · toca para reintentar</span>';
+  if (it.estado === 'error') return '<span class="pill err">Falló el resumen</span>';
+  return '';
+}
+function tarjeta(it){
+  const src = img(it);
+  return `<article class="card" data-id="${esc(it.id)}">
+    <div class="thumb">${src ? `<img loading="lazy" alt="" src="${esc(src)}">` : ''}${estadoPill(it)}
+      ${VISOR || it.estado === 'subiendo' || it.estado === 'fallo' ? '' : `<button class="star${it.destacado === 'si' ? ' on' : ''}" data-star aria-label="Destacar">★</button>`}</div>
+    <div class="cb">
+      ${it.tema ? `<div class="tags"><span class="tag">${esc(it.tema)}</span>${it.tipo ? `<span class="tag t2">${esc(it.tipo)}</span>` : ''}</div>` : ''}
+      <h3>${esc(it.titulo || (enProceso(it) ? 'Foto guardada' : 'Sin título'))}</h3>
+      ${it.resumen ? `<p>${esc(it.resumen)}</p>` : ''}
+      <div class="foot">${esc([it.charla, fechaTxt(it.fecha)].filter(Boolean).join(' · '))}</div>
+    </div></article>`;
+}
+
+/* ---------------- Subir y analizar ---------------- */
+function comprimir(file){
+  return new Promise((ok, no) => {
+    const url = URL.createObjectURL(file);
+    const im = new Image();
+    im.onload = () => {
+      const max = 1600, k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
+      const c = document.createElement('canvas');
+      c.width = Math.round(im.naturalWidth * k); c.height = Math.round(im.naturalHeight * k);
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      ok(c.toDataURL('image/jpeg', 0.82));
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); no(new Error('No se pudo leer la foto')); };
+    im.src = url;
+  });
+}
+
+async function agregar(files){
+  const charla = $('#inCharla').value.trim();
+  ls.set('hg_charla', charla);
+  cerrar('#sheetAdd');
+  let n = 0;
+  for (const f of files){
+    try {
+      const data = await comprimir(f);
+      const t = { id: 'tmp' + Date.now() + (n++), fecha: new Date().toISOString(), charla, titulo: '', tema: '', tipo: '', resumen: '', puntos: '', referencia: '', legibilidad: '', nota: '', destacado: '', estado: 'subiendo', error: '', imagen: '' };
+      previews[t.id] = data;
+      items.push(t); cola.push(t);
+      render();
+    } catch (e) { toast(e.message); }
+  }
+  procesarCola();
+}
+
+async function procesarCola(){
+  if (subiendo) return;
+  subiendo = true;
+  while (cola.length){
+    const t = cola.shift();
+    const viejo = t.id;
+    try {
+      t.estado = 'subiendo'; render();
+      const r = await api('crear', { imagen: previews[viejo], charla: t.charla });
+      previews[r.item.id] = previews[viejo]; delete previews[viejo];
+      Object.assign(t, r.item);
+      if (abierto === viejo) abierto = t.id;
+      guardarCache(); render(); refrescarFicha(t.id);
+      analizar(t.id);                       // el resumen corre aparte; la foto ya quedó guardada
+    } catch (e) {
+      t.estado = 'fallo'; t.error = e.message; render(); refrescarFicha(t.id);
+    }
+  }
+  subiendo = false;
+}
+
+async function analizar(id){
+  const it = find(id); if (!it || it._an) return;
+  it._an = true; it.estado = 'pendiente'; it.error = ''; render(); refrescarFicha(id);
+  try {
+    const r = await api('analizar', { id });
+    Object.assign(it, r.item);
+  } catch (e) { it.estado = 'error'; it.error = e.message; }
+  it._an = false;
+  guardarCache(); render(); refrescarFicha(id);
+}
+
+async function cargar(silencio){
+  try {
+    const r = await apiList();
+    if (r.meta && r.meta.titulo) meta = r.meta;
+    const locales = items.filter(x => x.estado === 'subiendo' || x.estado === 'fallo');
+    const an = {}; items.forEach(x => { if (x._an) an[x.id] = true; });
+    items = r.items.map(x => { if (an[x.id]) x._an = true; return x; }).concat(locales);
+    guardarCache(); render();
+    if (!VISOR && (PIN || DEMO)) items.filter(x => x.estado === 'pendiente' && !x._an).forEach(x => analizar(x.id));
+    if (!silencio) toast('Actualizado');
+  } catch (e) { toast('Sin conexión con la hoja: ' + e.message); }
+}
+
+/* ---------------- Ficha ---------------- */
+function abrirFicha(id){ abierto = id; modoEdit = false; confirmaBorrar = false; pintarFicha(); abrir('#sheetDet'); $('#panelDet').scrollTop = 0; }
+function refrescarFicha(id){ if (abierto === id && $('#sheetDet').classList.contains('on') && !modoEdit) pintarFicha(); }
+
+function pintarFicha(){
+  const it = find(abierto); if (!it){ cerrar('#sheetDet'); return; }
+  const src = img(it), p = $('#panelDet');
+  const cab = `<div class="ph"><h3>${modoEdit ? 'Editar hallazgo' : 'Hallazgo'}</h3><button class="x" data-close>✕</button></div>`;
+
+  if (modoEdit){
+    const opt = (arr, v) => arr.map(o => `<option${o === v ? ' selected' : ''}>${esc(o)}</option>`).join('');
+    p.innerHTML = cab + `
+      <label class="lbl" style="margin-top:0">Título</label><input class="inp" id="eTit" maxlength="120" value="${esc(it.titulo)}">
+      <label class="lbl">Charla o expositor</label><input class="inp" id="eCha" maxlength="140" value="${esc(it.charla)}">
+      <label class="lbl">Tema</label><select class="inp" id="eTema">${opt(TEMAS, it.tema || 'Otro')}</select>
+      <label class="lbl">Tipo de lámina</label><select class="inp" id="eTipo">${opt(TIPOS, it.tipo || 'Otro')}</select>
+      <label class="lbl">Resumen</label><textarea class="inp" id="eRes" style="min-height:140px">${esc(it.resumen)}</textarea>
+      <label class="lbl">Puntos clave (uno por línea)</label><textarea class="inp" id="ePun" style="min-height:140px">${esc(it.puntos)}</textarea>
+      <div class="acts"><button class="btn" data-a="cancelar">Cancelar</button><button class="btn pri" data-a="guardar">Guardar</button></div>`;
+    return;
+  }
+
+  let estado = '';
+  if (it.estado === 'subiendo') estado = '<div class="wait"><i class="spin"></i>Guardando la foto…</div>';
+  else if (it.estado === 'pendiente') estado = it._an ? '<div class="wait"><i class="spin"></i>La foto ya está guardada. La IA está escribiendo el resumen…</div>' : '<div class="warn">La foto está guardada, pero aún no tiene resumen.</div>';
+  else if (it.estado === 'fallo') estado = `<div class="errb">La foto no se pudo guardar: ${esc(it.error)}</div>`;
+  else if (it.estado === 'error') estado = `<div class="errb">La foto está guardada, pero falló el resumen: ${esc(it.error)}</div>`;
+
+  const pts = puntosDe(it);
+  const guardado = it.estado !== 'subiendo' && it.estado !== 'fallo';
+  let acc = '';
+  if (!VISOR){
+    if (confirmaBorrar) acc = `<p class="lbl">¿Eliminar este hallazgo y su foto?</p><div class="acts" style="margin-top:6px"><button class="btn" data-a="no">Cancelar</button><button class="btn dan" data-a="si">Sí, eliminar</button></div>`;
+    else if (it.estado === 'fallo') acc = `<div class="acts"><button class="btn pri" data-a="resubir">Reintentar</button><button class="btn dan" data-a="borrar">Descartar</button></div>`;
+    else if (guardado) acc = `<div class="acts">
+      <button class="btn" data-a="star">${it.destacado === 'si' ? '★ Quitar destacado' : '☆ Destacar'}</button>
+      <button class="btn" data-a="editar"${it.estado === 'listo' ? '' : ' disabled'}>✎ Editar</button>
+      <button class="btn" data-a="re"${it._an ? ' disabled' : ''}>↻ ${it.estado === 'listo' ? 'Resumir de nuevo' : 'Pedir resumen'}</button>
+      <button class="btn dan" data-a="borrar">Eliminar</button></div>`;
+  }
+
+  p.innerHTML = cab + `
+    ${src ? `<img class="dimg" alt="Foto de la lámina" src="${esc(src)}" data-zoom>` : ''}
+    ${estado}
+    ${it.tema ? `<div class="tags" style="margin-top:12px"><span class="tag">${esc(it.tema)}</span>${it.tipo ? `<span class="tag t2">${esc(it.tipo)}</span>` : ''}</div>` : ''}
+    ${it.titulo ? `<h2>${esc(it.titulo)}</h2>` : ''}
+    <p class="meta">${esc([it.charla, fechaTxt(it.fecha)].filter(Boolean).join(' · '))}</p>
+    ${it.resumen ? `<h4>Resumen <span class="ia">escrito por IA</span></h4><p>${esc(it.resumen)}</p>` : ''}
+    ${pts.length ? `<h4>Puntos clave</h4><ul>${pts.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+    ${it.referencia ? `<h4>Referencia en la lámina</h4><p class="ref">${esc(it.referencia)}</p>` : ''}
+    ${it.legibilidad ? `<div class="warn"><b>Revisar en la foto:</b> ${esc(it.legibilidad)}</div>` : ''}
+    ${VISOR ? (it.nota ? `<h4>Nota</h4><p>${esc(it.nota)}</p>` : '') : (guardado ? `<h4>Mi nota</h4><textarea class="inp" id="dNota" placeholder="Lo que dijo el expositor, una idea, una duda…">${esc(it.nota)}</textarea><div class="acts" style="margin-top:8px"><button class="btn wide" data-a="nota">Guardar nota</button></div>` : '')}
+    ${acc}`;
+}
+
+async function editar(id, campos, okMsg){
+  const it = find(id); if (!it) return;
+  try { const r = await api('editar', { id, campos }); Object.assign(it, r.item, { _an: it._an }); guardarCache(); render(); if (okMsg) toast(okMsg); return true; }
+  catch (e) { toast('No se guardó: ' + e.message); return false; }
+}
+async function alternarStar(id){
+  const it = find(id); if (!it) return;
+  const nuevo = it.destacado === 'si' ? '' : 'si', antes = it.destacado;
+  it.destacado = nuevo; render(); refrescarFicha(id);
+  if (!(await editar(id, { destacado: !!nuevo }))){ it.destacado = antes; render(); refrescarFicha(id); }
+}
+
+$('#panelDet').addEventListener('click', async e => {
+  if (e.target.closest('[data-zoom]')){ zoom(e.target.src); return; }
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const a = b.dataset.a, id = abierto, it = find(id); if (!it) return;
+  if (a === 'star') alternarStar(id);
+  else if (a === 'editar'){ modoEdit = true; pintarFicha(); }
+  else if (a === 'cancelar'){ modoEdit = false; pintarFicha(); }
+  else if (a === 'guardar'){
+    b.disabled = true; b.textContent = 'Guardando…';
+    const ok = await editar(id, { titulo: $('#eTit').value.trim(), charla: $('#eCha').value.trim(), tema: $('#eTema').value, tipo: $('#eTipo').value, resumen: $('#eRes').value.trim(), puntos: $('#ePun').value.trim() }, 'Cambios guardados');
+    if (ok){ modoEdit = false; pintarFicha(); } else { b.disabled = false; b.textContent = 'Guardar'; }
+  }
+  else if (a === 'nota'){ b.disabled = true; await editar(id, { nota: $('#dNota').value.trim() }, 'Nota guardada'); b.disabled = false; }
+  else if (a === 're') analizar(id);
+  else if (a === 'resubir'){ if (!cola.includes(it)) cola.push(it); it.estado = 'subiendo'; render(); pintarFicha(); procesarCola(); }
+  else if (a === 'borrar'){
+    if (it.estado === 'fallo'){ items = items.filter(x => x !== it); delete previews[id]; cerrar('#sheetDet'); render(); return; }
+    confirmaBorrar = true; pintarFicha(); $('#panelDet').scrollTop = $('#panelDet').scrollHeight;
+  }
+  else if (a === 'no'){ confirmaBorrar = false; pintarFicha(); }
+  else if (a === 'si'){
+    b.disabled = true; b.textContent = 'Eliminando…';
+    try { await api('eliminar', { id }); items = items.filter(x => x.id !== id); delete previews[id]; guardarCache(); cerrar('#sheetDet'); render(); toast('Hallazgo eliminado'); }
+    catch (err) { toast('No se pudo eliminar: ' + err.message); confirmaBorrar = false; pintarFicha(); }
+  }
+});
+
+/* ---------------- Zoom ---------------- */
+function zoom(src){ $('#zoomImg').src = src; $('#zoom').classList.remove('x2'); abrir('#zoom'); }
+$('#zoomImg').addEventListener('click', () => $('#zoom').classList.toggle('x2'));
+$('#zoomX').addEventListener('click', () => cerrar('#zoom'));
+
+/* ---------------- Presentación ---------------- */
+function abrirPres(){
+  const l = items.filter(x => x.estado === 'listo' && (!soloDest || x.destacado === 'si'))
+                 .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+  $('#pTit').textContent = meta.titulo || '';
+  $('#pDest').classList.toggle('on', soloDest);
+  const portada = `<section class="slide"><div class="cover"><div>
+      <small>Biblioteca del congreso</small><h2>${esc(meta.titulo)}</h2><p>${esc(meta.subtitulo)}</p>
+      <span class="n">${l.length} lámina${l.length === 1 ? '' : 's'}${soloDest ? ' destacada' + (l.length === 1 ? '' : 's') : ''}</span>
+      <span class="sw">${l.length ? 'Desliza hacia la izquierda para avanzar →' : 'No hay láminas para mostrar con este filtro.'}</span></div></div></section>`;
+  $('#deck').innerHTML = portada + l.map(it => {
+    const pts = puntosDe(it), src = img(it);
+    return `<section class="slide"><div class="sin">
+      <div class="sfoto">${src ? `<img alt="Foto de la lámina" loading="lazy" src="${esc(src)}" data-zoom>` : ''}</div>
+      <div class="stxt">
+        <div class="eye">${esc([it.charla, it.tema, it.tipo].filter(Boolean).join(' · '))}</div>
+        <h2>${it.destacado === 'si' ? '★ ' : ''}${esc(it.titulo)}</h2>
+        ${it.resumen ? `<p>${esc(it.resumen)}</p>` : ''}
+        ${pts.length ? `<ul>${pts.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+        ${it.nota ? `<div class="snota"><b>Nota</b>${esc(it.nota)}</div>` : ''}
+        <div class="spie">Resumen escrito por IA a partir de la foto${it.legibilidad ? ' · Revisar: ' + esc(it.legibilidad) : ''}</div>
+      </div></div></section>`;
+  }).join('');
+  abrir('#pres');
+  $('#deck').scrollLeft = 0;
+  contar();
+}
+function contar(){ const d = $('#deck'), n = d.children.length, i = Math.round(d.scrollLeft / (d.clientWidth || 1)); $('#pNum').textContent = (i + 1) + ' / ' + n; }
+function mover(k){ const d = $('#deck'); d.scrollBy({ left: k * d.clientWidth, behavior: 'smooth' }); }
+$('#deck').addEventListener('scroll', contar, { passive: true });
+$('#deck').addEventListener('click', e => { if (e.target.closest('[data-zoom]')) zoom(e.target.src); });
+$('#pPrev').addEventListener('click', () => mover(-1));
+$('#pNext').addEventListener('click', () => mover(1));
+$('#pClose').addEventListener('click', () => cerrar('#pres'));
+$('#pDest').addEventListener('click', () => { soloDest = !soloDest; abrirPres(); });
+document.addEventListener('keydown', e => {
+  if ($('#zoom').classList.contains('on')){ if (e.key === 'Escape') cerrar('#zoom'); return; }
+  if (!$('#pres').classList.contains('on')) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') mover(1);
+  else if (e.key === 'ArrowLeft') mover(-1);
+  else if (e.key === 'Escape') cerrar('#pres');
+});
+
+/* ---------------- Clave y ajustes ---------------- */
+function pedirPin(msg){
+  if (VISOR || DEMO) return;
+  const e = $('#pinErr'); e.hidden = !msg; e.textContent = msg || '';
+  $('#inPin').value = ''; abrir('#sheetPin');
+}
+$('#btnPin').addEventListener('click', async () => {
+  const v = $('#inPin').value.trim(); if (!v) return;
+  const b = $('#btnPin'); b.disabled = true; b.textContent = 'Comprobando…';
+  PIN = v;
+  try { await api('ping'); ls.set('hg_pin', v); cerrar('#sheetPin'); toast('Listo, ya puedes subir fotos'); cargar(true); }
+  catch (err) { PIN = ''; const e = $('#pinErr'); e.hidden = false; e.textContent = err.message; abrir('#sheetPin'); }
+  b.disabled = false; b.textContent = 'Entrar';
+});
+$('#inPin').addEventListener('keydown', e => { if (e.key === 'Enter') $('#btnPin').click(); });
+
+$('#btnMenu').addEventListener('click', () => { $('#cfgTit').value = meta.titulo || ''; $('#cfgSub').value = meta.subtitulo || ''; abrir('#sheetCfg'); });
+$('#cfgSave').addEventListener('click', async () => {
+  try { const r = await api('meta', { titulo: $('#cfgTit').value.trim(), subtitulo: $('#cfgSub').value.trim() }); meta = r.meta; guardarCache(); render(); cerrar('#sheetCfg'); toast('Guardado'); }
+  catch (e) { toast('No se guardó: ' + e.message); }
+});
+$('#cfgLink').addEventListener('click', async () => {
+  const url = location.origin + location.pathname + '?ver=1';
+  try { await navigator.clipboard.writeText(url); toast('Enlace copiado'); } catch (e) { toast(url); }
+});
+$('#cfgPin').addEventListener('click', () => { cerrar('#sheetCfg'); PIN = ''; ls.del('hg_pin'); if (DEMO) toast('En modo demostración no se usa clave'); else pedirPin(); });
+
+/* ---------------- Eventos generales ---------------- */
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-close]');
+  if (c){ c.closest('.sheet').classList.remove('on'); return; }
+  if (e.target.classList.contains('sheet') && e.target.id !== 'sheetPin') e.target.classList.remove('on');
+});
+$('#stats').addEventListener('click', e => { const b = e.target.closest('[data-e]'); if (!b) return; filtro.estado = filtro.estado === b.dataset.e ? 'todos' : b.dataset.e; render(); });
+$('#chips').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; filtro.tema = b.dataset.t; render(); });
+$('#q').addEventListener('input', e => { filtro.q = e.target.value; render(); });
+$('#grid').addEventListener('click', e => {
+  const card = e.target.closest('.card'); if (!card) return;
+  if (e.target.closest('[data-star]')){ alternarStar(card.dataset.id); return; }
+  abrirFicha(card.dataset.id);
+});
+$('#btnAdd').addEventListener('click', () => { if (!DEMO && !PIN){ pedirPin(); return; } $('#inCharla').value = ls.get('hg_charla') || ''; abrir('#sheetAdd'); });
+['#fCam', '#fGal'].forEach(s => $(s).addEventListener('change', e => { const f = [...e.target.files]; e.target.value = ''; if (f.length) agregar(f); }));
+$('#btnPres').addEventListener('click', abrirPres);
+$('#btnSync').addEventListener('click', () => cargar(false));
+window.addEventListener('beforeunload', e => { if (cola.length || subiendo){ e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------------- Ícono para instalar en el teléfono ---------------- */
+(function icono(){
+  try {
+    const c = document.createElement('canvas'); c.width = c.height = 192;
+    const x = c.getContext('2d');
+    const g = x.createLinearGradient(0, 0, 192, 192); g.addColorStop(0, '#0f3b4f'); g.addColorStop(1, '#0e6b8a');
+    x.fillStyle = g; x.fillRect(0, 0, 192, 192);
+    x.fillStyle = '#fff'; x.font = '800 104px system-ui,sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('H', 96, 102);
+    const png = c.toDataURL('image/png');
+    [['icon', png], ['apple-touch-icon', png]].forEach(([rel, href]) => { const l = document.createElement('link'); l.rel = rel; l.href = href; document.head.appendChild(l); });
+    const man = { name: 'Hallazgos Gastro', short_name: 'Hallazgos', start_url: location.origin + location.pathname, display: 'standalone', background_color: '#eef2f6', theme_color: '#0f3b4f', icons: [{ src: png, sizes: '192x192', type: 'image/png' }] };
+    const l = document.createElement('link'); l.rel = 'manifest'; l.href = URL.createObjectURL(new Blob([JSON.stringify(man)], { type: 'application/manifest+json' })); document.head.appendChild(l);
+  } catch (e) {}
+})();
+
+/* ---------------- Inicio ---------------- */
+(async function inicio(){
+  if (DEMO){ $('#demoBanner').hidden = false; demoSeed(); }
+  if (VISOR){ $('#btnAdd').hidden = true; $('#btnMenu').hidden = true; }
+  try { const c = JSON.parse(ls.get('hg_cache') || 'null'); if (c && !DEMO){ meta = c.meta || meta; items = c.items || []; } } catch (e) {}
+  render();
+  await cargar(true);
+  if (VISOR && items.some(x => x.estado === 'listo')) abrirPres();
+  else if (!VISOR && !DEMO && !PIN) pedirPin();
+})();
+</script>
+</body>
+</html>
