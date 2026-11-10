@@ -716,14 +716,9 @@ window.addEventListener('beforeunload', e => { if (cola.length || subiendo){ e.p
 /* ---------------- Ícono para instalar en el teléfono ---------------- */
 (function icono(){
   try {
-    const c = document.createElement('canvas'); c.width = c.height = 192;
-    const x = c.getContext('2d');
-    const g = x.createLinearGradient(0, 0, 192, 192); g.addColorStop(0, '#0f3b4f'); g.addColorStop(1, '#0e6b8a');
-    x.fillStyle = g; x.fillRect(0, 0, 192, 192);
-    x.fillStyle = '#fff'; x.font = '800 104px system-ui,sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('H', 96, 102);
-    const png = c.toDataURL('image/png');
-    [['icon', png], ['apple-touch-icon', png]].forEach(([rel, href]) => { const l = document.createElement('link'); l.rel = rel; l.href = href; document.head.appendChild(l); });
-    const man = { name: 'Hallazgos Gastro', short_name: 'Hallazgos', start_url: location.origin + location.pathname, display: 'standalone', background_color: '#eef2f6', theme_color: '#0f3b4f', icons: [{ src: png, sizes: '192x192', type: 'image/png' }] };
+    const u = new URL('icon.png', location.href).href;
+    [['icon', u], ['apple-touch-icon', u]].forEach(([rel, href]) => { const l = document.createElement('link'); l.rel = rel; l.href = href; document.head.appendChild(l); });
+    const man = { name: 'Hallazgos Gastro', short_name: 'Hallazgos', start_url: location.origin + location.pathname, display: 'standalone', background_color: '#eef2f6', theme_color: '#0f3b4f', icons: [{ src: u, sizes: '512x512', type: 'image/png', purpose: 'any' }] };
     const l = document.createElement('link'); l.rel = 'manifest'; l.href = URL.createObjectURL(new Blob([JSON.stringify(man)], { type: 'application/manifest+json' })); document.head.appendChild(l);
   } catch (e) {}
 })();
